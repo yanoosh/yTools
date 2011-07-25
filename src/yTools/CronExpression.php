@@ -39,7 +39,7 @@ class CronExpression {
     	) {
         	$this->parsedExpression = $parsedExpression;
     	} else {
-        	throw new InvalidArgumentException();
+        	throw new \InvalidArgumentException();
     	}
 	}
 

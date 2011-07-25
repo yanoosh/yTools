@@ -48,7 +48,13 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase {
     protected function tearDown() {
         
     }
-
+    
+    public function testConstruct() {
+        try {
+            new CronExpression('*');
+            $this->fail('An expected exception has not been raised.');
+        } catch (\InvalidArgumentException $expected) {}
+    }
     /**
      * @todo Implement testCheckDate().
      */
