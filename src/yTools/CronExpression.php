@@ -5,7 +5,7 @@ namespace yTools;
  * @todo Add support expression "1-30/5".
  * @todo Add support for expressions that begin with "@".
  */
-class CronExpressin {
+class CronExpression {
 	const CRON_MINUTE = 0;
 	const CRON_HOUR = 1;
 	const CRON_DAY = 2;
