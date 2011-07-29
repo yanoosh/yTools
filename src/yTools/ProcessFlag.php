@@ -62,10 +62,10 @@ class ProcessFlag {
 
     public function setFlagRelease($put) {
         if (
-                in_array((int) $put, array(
-                    self::RELEASE_BEFORE,
-                    self::RELEASE_AFTER,
-                ))
+            in_array((int) $put, array(
+                self::RELEASE_BEFORE,
+                self::RELEASE_AFTER,
+            ))
         ) {
             $this->flagRelease = (int) $put;
             return true;
@@ -85,8 +85,8 @@ class ProcessFlag {
 
     public function run() {
         if (
-                !empty($this->callFunction)
-                && null != ($tmp = $this->isPossibleRun())
+            !empty($this->callFunction)
+            && null != ($tmp = $this->isPossibleRun())
         ) {
             if ($this->flagRelease == self::RELEASE_BEFORE) {
                 $retFlag = $this->createFlag();
@@ -103,21 +103,21 @@ class ProcessFlag {
 
     private function setFlagType($type, $value = null) {
         if (
-                in_array((int) $type, array(
-                    self::RUN_ONE_IN_THE_DAY,
-                ))
+            in_array((int) $type, array(
+                self::RUN_ONE_IN_THE_DAY,
+            ))
         ) {
             $this->flagType = (int) $type;
             $this->flagTypeValue = 0;
             return true;
         } elseif (
-                in_array((int) $type, array(
-                    self::RUN_SECOND_PERIOD,
-                    self::RUN_MINUTE_PERIOD,
-                    self::RUN_HOUR_PERIOD,
-                    self::RUN_DAY_PERIOD,
-                ))
-                && 0 < (int) $value
+            in_array((int) $type, array(
+                self::RUN_SECOND_PERIOD,
+                self::RUN_MINUTE_PERIOD,
+                self::RUN_HOUR_PERIOD,
+                self::RUN_DAY_PERIOD,
+            ))
+            && 0 < (int) $value
         ) {
             $this->flagType = (int) $type;
             $this->flagTypeValue = (int) $value;

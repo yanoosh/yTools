@@ -1,4 +1,5 @@
 <?php
+
 namespace yTools;
 
 class ProcessGuard {
@@ -33,7 +34,6 @@ class ProcessGuard {
      * @var string
      */
     private $flockPrefix;
-    
     /**
      *
      * @var integer
@@ -49,14 +49,14 @@ class ProcessGuard {
         if (!empty($function)) {
             if (is_object($object)) {
                 $this->callFunction = function($args) use($object, $function) {
-                    $tmp = new \ReflectionMethod(get_class($object), $function);
-                    $tmp->setAccessible(true);
-                    return $tmp->invokeArgs($object, $args);
-                };
+                        $tmp = new \ReflectionMethod(get_class($object), $function);
+                        $tmp->setAccessible(true);
+                        return $tmp->invokeArgs($object, $args);
+                    };
             } else {
                 $this->callFunction = function($args) use($function) {
-                    return call_user_func_array($function, $args);
-                };
+                        return call_user_func_array($function, $args);
+                    };
             }
             $this->setFlockPrefix($function);
             $this->flockDir = __DIR__;
@@ -102,7 +102,7 @@ class ProcessGuard {
     public function getNumberOfLocks() {
         return count($this->getLocksProcessInfo());
     }
-    
+
     public function getLocksProcessInfo() {
         $ids = array();
         for ($flockNumber = 0; $flockNumber < $this->processNumber; $flockNumber++) {
@@ -113,7 +113,7 @@ class ProcessGuard {
             ) {
                 if (!flock($flockFile, LOCK_EX | LOCK_NB)) {
                     $ids[] = array(
-                        'process_id' => (int)fread($flockFile, 32),
+                        'process_id' => (int) fread($flockFile, 32),
                         'flock_number' => $flockNumber,
                         'file_path' => $filePath,
                         'modified_date_time' => filemtime($filePath),
@@ -123,14 +123,12 @@ class ProcessGuard {
             }
         }
         return $ids;
-        
     }
-    
+
     public function getFlockNumber() {
         return $this->flockNumber;
     }
-            
-    
+
     public function getProcessId() {
         return $this->processId;
     }
@@ -149,7 +147,7 @@ class ProcessGuard {
             $this->unlock();
             return $return;
         } else {
-            
+
             return null;
         }
     }
@@ -196,7 +194,8 @@ class ProcessGuard {
 
     private function getLockFile($processNumber) {
         return $this->flockDir . DIRECTORY_SEPARATOR . sprintf(
-                '%s-%03d-%03d.flock', $this->flockPrefix, $this->processNumber, $processNumber
+            '%s-%03d-%03d.flock', $this->flockPrefix, $this->processNumber, $processNumber
         );
     }
+
 }

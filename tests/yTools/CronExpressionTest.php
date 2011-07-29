@@ -14,7 +14,6 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase {
      * @var CronExpression[]
      */
     protected $object;
-    
     /**
      *
      * @var string[]
@@ -54,7 +53,7 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase {
     protected function tearDown() {
         
     }
-    
+
     public function testConstruct() {
         try {
             new CronExpression('*');
@@ -65,6 +64,7 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase {
             $this->fail('An expected exception has not been raised.');
         } catch (\InvalidArgumentException $expected) {}
     }
+
     /**
      * @todo Implement testCheckDate().
      */
@@ -78,12 +78,10 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase {
             5 => array(true, false, false, true, false),
             6 => array(false, false, false, false, false),
         );
-        foreach($this->object as $objectID => $object) {
+        foreach ($this->object as $objectID => $object) {
             foreach ($this->dateList as $dateID => $date) {
                 $this->assertEquals(
-                    $result[$objectID][$dateID], 
-                    $object->checkDate($date),
-                    sprintf('CronExpression object ID: %d, date ID: %d.', $objectID, $dateID)
+                    $result[$objectID][$dateID], $object->checkDate($date), sprintf('CronExpression object ID: %d, date ID: %d.', $objectID, $dateID)
                 );
             }
         }
@@ -144,20 +142,21 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase {
                 '2011-07-01 00:01:00',
             ),
         );
-        foreach($this->object as $objectID => $object) {
+        foreach ($this->object as $objectID => $object) {
             foreach ($this->dateList as $dateID => $date) {
                 $this->assertEquals(
-                    new \DateTime($resultDate[$objectID][$dateID]),
-                    $object->getNextDate($date),
+                    new \DateTime($resultDate[$objectID][$dateID]), 
+                    $object->getNextDate($date), 
                     sprintf('CronExpression object ID: %d, date: %s.', $objectID, $date->format('Y-m-d H:i:s'))
                 );
             }
         }
-        
+
         $dateIn = new \DateTime();
         $dateOut = $this->object[0]->getNextDate();
-        $this->assertType('DateTime',$dateOut);
+        $this->assertType('DateTime', $dateOut);
         $interval = $dateOut->diff($dateIn);
         $this->assertEquals(1, $interval->invert);
     }
+
 }

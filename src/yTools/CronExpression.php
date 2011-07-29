@@ -1,4 +1,5 @@
 <?php
+
 namespace yTools;
 
 /**
@@ -6,21 +7,21 @@ namespace yTools;
  * @todo Add support for expressions that begin with "@".
  */
 class CronExpression {
-	const CRON_MINUTE = 0;
-	const CRON_HOUR = 1;
-	const CRON_DAY = 2;
-	const CRON_MONTH = 3;
-	const CRON_DAY_OF_WEEK = 4;
-	const ALL_VALUE = '*';
-	const SPLITER_MULTIVALUE = ',';
-	const SPLITER_RANGE = '-';
-	const SPLITER_DIVISOR = '/';
+    const CRON_MINUTE = 0;
+    const CRON_HOUR = 1;
+    const CRON_DAY = 2;
+    const CRON_MONTH = 3;
+    const CRON_DAY_OF_WEEK = 4;
+    const ALL_VALUE = '*';
+    const SPLITER_MULTIVALUE = ',';
+    const SPLITER_RANGE = '-';
+    const SPLITER_DIVISOR = '/';
     const VALUE_FOUND = 0;
     const VALUE_IN_RANGE = 1;
     const VALUE_RESET = 2;
-	protected $listDayOfWeek = array('sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat');
-	protected $listMonth = array(1 => 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec');
-	protected $parsedExpression = array();
+    protected $listDayOfWeek = array('sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat');
+    protected $listMonth = array(1 => 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec');
+    protected $parsedExpression = array();
     protected $timeFromat = array(
         self::CRON_MINUTE => 'i',
         self::CRON_HOUR => 'H',
@@ -29,42 +30,42 @@ class CronExpression {
         self::CRON_DAY_OF_WEEK => 'w',
     );
 
-	public function __construct($expression) {
-    	$tmp = preg_split('#\s+#', $expression);
-    	$parsedExpression = array();
-    	if (
-        	4 < count($tmp)
-        	&& null != ($parsedExpression[self::CRON_MINUTE] = $this->parseMinute($tmp[self::CRON_MINUTE]))
-        	&& null != ($parsedExpression[self::CRON_HOUR] = $this->parseHour($tmp[self::CRON_HOUR]))
-        	&& null != ($parsedExpression[self::CRON_DAY] = $this->parseDay($tmp[self::CRON_DAY]))
-        	&& null != ($parsedExpression[self::CRON_MONTH] = $this->parseMonth($tmp[self::CRON_MONTH]))
-        	&& null != ($parsedExpression[self::CRON_DAY_OF_WEEK] = $this->parseDayOfWeek($tmp[self::CRON_DAY_OF_WEEK]))
-    	) {
-        	$this->parsedExpression = $parsedExpression;
-    	} else {
-        	throw new \InvalidArgumentException();
-    	}
-	}
+    public function __construct($expression) {
+        $tmp = preg_split('#\s+#', $expression);
+        $parsedExpression = array();
+        if (
+            4 < count($tmp)
+            && null != ($parsedExpression[self::CRON_MINUTE] = $this->parseMinute($tmp[self::CRON_MINUTE]))
+            && null != ($parsedExpression[self::CRON_HOUR] = $this->parseHour($tmp[self::CRON_HOUR]))
+            && null != ($parsedExpression[self::CRON_DAY] = $this->parseDay($tmp[self::CRON_DAY]))
+            && null != ($parsedExpression[self::CRON_MONTH] = $this->parseMonth($tmp[self::CRON_MONTH]))
+            && null != ($parsedExpression[self::CRON_DAY_OF_WEEK] = $this->parseDayOfWeek($tmp[self::CRON_DAY_OF_WEEK]))
+        ) {
+            $this->parsedExpression = $parsedExpression;
+        } else {
+            throw new \InvalidArgumentException();
+        }
+    }
 
-	public function checkDate(\DateTime $date) {
+    public function checkDate(\DateTime $date) {
         $ret = true;
-        foreach($this->parsedExpression as $pos => $set) {
+        foreach ($this->parsedExpression as $pos => $set) {
             if (!( // Negation !!
                 true === $set
-                || in_array((int)$date->format($this->timeFromat[$pos]), $set)
-            )) {
+                || in_array((int) $date->format($this->timeFromat[$pos]), $set)
+                )) {
                 $ret = false;
                 break;
             }
         }
         return $ret;
-	}
+    }
 
     /**
      *
      * @param \DateTime $date 
      */
-	public function getNextDate(\DateTime $date = null) {
+    public function getNextDate(\DateTime $date = null) {
         if ($date === null) {
             $date = new \DateTime();
         } else {
@@ -76,7 +77,7 @@ class CronExpression {
         $day = $date->format($this->timeFromat[self::CRON_DAY]);
         $month = $date->format($this->timeFromat[self::CRON_MONTH]);
         $year = $date->format('Y');
-        
+
         $sets = $this->parsedExpression;
         if (self::VALUE_FOUND != ($tmp = $this->setArrayPosition(&$sets[self::CRON_MONTH], &$month))) {
             if (self::VALUE_RESET === $tmp) {
@@ -100,14 +101,13 @@ class CronExpression {
                     if (
                         true === $sets[self::CRON_DAY_OF_WEEK]
                         || in_array(
-                            $date->format($this->timeFromat[self::CRON_DAY_OF_WEEK]),
-                            $sets[self::CRON_DAY_OF_WEEK]
+                            $date->format($this->timeFromat[self::CRON_DAY_OF_WEEK]), $sets[self::CRON_DAY_OF_WEEK]
                         )
                     ) {
                         $continue = false;
                     } else {
-                        $sets[self::CRON_MINUTE] === true ? $minute = -1: end($sets[self::CRON_MINUTE]);
-                        $sets[self::CRON_HOUR] === true ? $hour = -1: end($sets[self::CRON_HOUR]);
+                        $sets[self::CRON_MINUTE] === true ? $minute = -1 : end($sets[self::CRON_MINUTE]);
+                        $sets[self::CRON_HOUR] === true ? $hour = -1 : end($sets[self::CRON_HOUR]);
                     }
                 }
             }
@@ -116,10 +116,10 @@ class CronExpression {
             && !$this->nextValue(32, $sets[self::CRON_DAY], $day, 1)
             && !$this->nextValue(13, $sets[self::CRON_MONTH], $month, 1)
             && $year++;
-        } while($continue);
+        } while ($continue);
         return $date;
-	}
-    
+    }
+
     /**
      *
      * @param array $array Array with numbers.
@@ -134,20 +134,20 @@ class CronExpression {
                     if ($tmp > $value) {
                         $value = $tmp;
                         return self::VALUE_IN_RANGE;
-                    } elseif($tmp == $value) {
+                    } elseif ($tmp == $value) {
                         return self::VALUE_FOUND;
                     }
                 } while (false !== ($tmp = next($array)));
             }
             $value = reset($array);
             return self::VALUE_RESET;
-        } elseif(true === $array) {
+        } elseif (true === $array) {
             return self::VALUE_FOUND;
         } else {
             throw new \UnexpectedValueException();
         }
     }
-    
+
     protected function nextValue($mod, &$set, &$value, $minValue = 0) {
         if ($set === true) {
             $value = (($value + 1) % $mod);
@@ -167,51 +167,52 @@ class CronExpression {
         }
     }
 
-	protected function parseMinute($expr) {
-    	return $this->parseExpression(array(0, 59), $expr);
-	}
+    protected function parseMinute($expr) {
+        return $this->parseExpression(array(0, 59), $expr);
+    }
 
-	protected function parseHour($expr) {
-    	return $this->parseExpression(array(0, 23), $expr);
-	}
+    protected function parseHour($expr) {
+        return $this->parseExpression(array(0, 23), $expr);
+    }
 
-	protected function parseDay($expr) {
-    	return $this->parseExpression(array(1, 31), $expr);
-	}
+    protected function parseDay($expr) {
+        return $this->parseExpression(array(1, 31), $expr);
+    }
 
-	protected function parseMonth($expr) {
-    	$expr = str_replace($this->listDayOfWeek, array_keys($this->listDayOfWeek), $expr);
-    	return $this->parseExpression(array(1, 12), $expr);
-	}
+    protected function parseMonth($expr) {
+        $expr = str_replace($this->listDayOfWeek, array_keys($this->listDayOfWeek), $expr);
+        return $this->parseExpression(array(1, 12), $expr);
+    }
 
-	protected function parseDayOfWeek($expr) {
-    	$expr = str_replace($this->listDayOfWeek, array_keys($this->listDayOfWeek), $expr);
-    	return $this->parseExpression(array(0, 6), $expr);
-	}
-    
-	protected function parseExpression($range, $expr, $noComa = false) {
-    	if (false !== strpos($expr, self::SPLITER_MULTIVALUE)) {
-        	$tmp = array();
-        	foreach(explode(self::SPLITER_MULTIVALUE, $expr) as $item) {
-            	$tmp[] = $this->parseExpression($range, $item);
-        	}
-        	$ret = call_user_func_array('array_merge', $tmp);
+    protected function parseDayOfWeek($expr) {
+        $expr = str_replace($this->listDayOfWeek, array_keys($this->listDayOfWeek), $expr);
+        return $this->parseExpression(array(0, 6), $expr);
+    }
+
+    protected function parseExpression($range, $expr, $noComa = false) {
+        if (false !== strpos($expr, self::SPLITER_MULTIVALUE)) {
+            $tmp = array();
+            foreach (explode(self::SPLITER_MULTIVALUE, $expr) as $item) {
+                $tmp[] = $this->parseExpression($range, $item);
+            }
+            $ret = call_user_func_array('array_merge', $tmp);
             sort($ret);
-        	unset($tmp);
-    	} elseif (self::ALL_VALUE == $expr[0]) {
-        	if (isset($expr[1]) && self::SPLITER_DIVISOR == $expr[1]) {
-            	$ret = range($range[0], $range[1], (int)substr($expr, 2));
-        	} else {
-            	$ret = true;
-        	}
-    	} elseif (false !== strpos($expr, self::SPLITER_RANGE)) {
-        	$tmp = explode(self::SPLITER_RANGE, $expr);
-        	$ret = range(max($range[0], $tmp[0]), min($range[1], $tmp[1]));
-    	} elseif($range[0] <= $expr && $range[1] >= $expr) {
-        	$ret = array((int)$expr);
-    	} else {
-        	$ret =  null;
-    	}
-    	return $ret;
-	}
+            unset($tmp);
+        } elseif (self::ALL_VALUE == $expr[0]) {
+            if (isset($expr[1]) && self::SPLITER_DIVISOR == $expr[1]) {
+                $ret = range($range[0], $range[1], (int) substr($expr, 2));
+            } else {
+                $ret = true;
+            }
+        } elseif (false !== strpos($expr, self::SPLITER_RANGE)) {
+            $tmp = explode(self::SPLITER_RANGE, $expr);
+            $ret = range(max($range[0], $tmp[0]), min($range[1], $tmp[1]));
+        } elseif ($range[0] <= $expr && $range[1] >= $expr) {
+            $ret = array((int) $expr);
+        } else {
+            $ret = null;
+        }
+        return $ret;
+    }
+
 }
