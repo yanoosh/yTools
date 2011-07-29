@@ -1,6 +1,6 @@
 <?php
 
-namespace Tools;
+namespace yTools;
 
 class ProcessFlag {
     const RUN_ONE_IN_THE_DAY = 1;
