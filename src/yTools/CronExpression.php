@@ -15,6 +15,9 @@ class CronExpression {
 	const SPLITER_MULTIVALUE = ',';
 	const SPLITER_RANGE = '-';
 	const SPLITER_DIVISOR = '/';
+    const VALUE_FOUND = 0;
+    const VALUE_IN_RANGE = 1;
+    const VALUE_RESET = 2;
 	protected $listDayOfWeek = array('sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat');
 	protected $listMonth = array(1 => 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec');
 	protected $parsedExpression = array();
@@ -46,7 +49,7 @@ class CronExpression {
 	public function checkDate(\DateTime $date) {
         $ret = true;
         foreach($this->parsedExpression as $pos => $set) {
-            if (!( // Zaprzeczenie !!
+            if (!( // Negation !!
                 true === $set
                 || in_array((int)$date->format($this->timeFromat[$pos]), $set)
             )) {
@@ -67,6 +70,7 @@ class CronExpression {
         } else {
             $date = clone $date;
         }
+        $baseTimestamp = $date->getTimestamp();
         $minute = $date->format($this->timeFromat[self::CRON_MINUTE]);
         $hour = $date->format($this->timeFromat[self::CRON_HOUR]);
         $day = $date->format($this->timeFromat[self::CRON_DAY]);
@@ -74,42 +78,73 @@ class CronExpression {
         $year = $date->format('Y');
         
         $sets = $this->parsedExpression;
-        $this->setArrayPosition($sets[self::CRON_MINUTE], $minute);
-        $this->setArrayPosition($sets[self::CRON_HOUR], $hour);
-        $this->setArrayPosition($sets[self::CRON_DAY], $day);
-        $this->setArrayPosition($sets[self::CRON_MONTH], $month);
+        if (self::VALUE_FOUND != ($tmp = $this->setArrayPosition(&$sets[self::CRON_MONTH], &$month))) {
+            if (self::VALUE_RESET === $tmp) {
+                $year++;
+            }
+            $day = null;
+        }
+        if (self::VALUE_FOUND != $this->setArrayPosition(&$sets[self::CRON_DAY], &$day)) {
+            $hour = null;
+        };
+        if (self::VALUE_FOUND != $this->setArrayPosition(&$sets[self::CRON_HOUR], &$hour)) {
+            $minute = null;
+        }
+        $this->setArrayPosition(&$sets[self::CRON_MINUTE], &$minute);
         $continue = true;
         $i = 0;
         do {
+            if (checkdate($month, $day, $year)) {
+                $date->setDate($year, $month, $day)->setTime($hour, $minute);
+                if ($baseTimestamp < $date->getTimestamp()) {
+                    if (
+                        true === $sets[self::CRON_DAY_OF_WEEK]
+                        || in_array(
+                            $date->format($this->timeFromat[self::CRON_DAY_OF_WEEK]),
+                            $sets[self::CRON_DAY_OF_WEEK]
+                        )
+                    ) {
+                        $continue = false;
+                    } else {
+                        $sets[self::CRON_MINUTE] === true ? $minute = -1: end($sets[self::CRON_MINUTE]);
+                        $sets[self::CRON_HOUR] === true ? $hour = -1: end($sets[self::CRON_HOUR]);
+                    }
+                }
+            }
             !$this->nextValue(60, $sets[self::CRON_MINUTE], $minute)
             && !$this->nextValue(24, $sets[self::CRON_HOUR], $hour)
             && !$this->nextValue(32, $sets[self::CRON_DAY], $day, 1)
             && !$this->nextValue(13, $sets[self::CRON_MONTH], $month, 1)
             && $year++;
-            if (checkdate($month, $day, $year)) {
-                $date->setDate($year, $month, $day)->setTime($hour, $minute);
-                if (true === $sets[self::CRON_DAY_OF_WEEK]
-                    || in_array(
-                    $date->format($this->timeFromat[self::CRON_DAY_OF_WEEK]),
-                    $sets[self::CRON_DAY_OF_WEEK]
-                    )
-                ) {
-                    $continue = false;
-                } else {
-                    $sets[self::CRON_MINUTE] === true ? $minute = -1: end($sets[self::CRON_MINUTE]);
-                    $sets[self::CRON_HOUR] === true ? $hour = -1: end($sets[self::CRON_HOUR]);
-                }
-            }
         } while($continue);
-        $date->setDate($year, $month, $day)->setTime($hour, $minute);
         return $date;
 	}
     
-    protected function setArrayPosition(&$set, $value) {
-        if (is_array($set)) {
-            $tmp = reset($set);
-            while ($cond = ($tmp <= $value) && false !== ($tmp = next($set)));
-            $cond? reset($set): prev($set);
+    /**
+     *
+     * @param array $array Array with numbers.
+     * @param integer $value Searching value.
+     * @return boolean If find equal value return true, otherwise false.
+     */
+    protected function setArrayPosition(&$array, &$value) {
+        if (is_array($array)) {
+            if (null !== $value) {
+                $tmp = reset($array);
+                do {
+                    if ($tmp > $value) {
+                        $value = $tmp;
+                        return self::VALUE_IN_RANGE;
+                    } elseif($tmp == $value) {
+                        return self::VALUE_FOUND;
+                    }
+                } while (false !== ($tmp = next($array)));
+            }
+            $value = reset($array);
+            return self::VALUE_RESET;
+        } elseif(true === $array) {
+            return self::VALUE_FOUND;
+        } else {
+            throw new \UnexpectedValueException();
         }
     }
     
@@ -155,21 +190,21 @@ class CronExpression {
 	}
     
 	protected function parseExpression($range, $expr, $noComa = false) {
-    	if (self::ALL_VALUE == $expr[0]) {
+    	if (false !== strpos($expr, self::SPLITER_MULTIVALUE)) {
+        	$tmp = array();
+        	foreach(explode(self::SPLITER_MULTIVALUE, $expr) as $item) {
+            	$tmp[] = $this->parseExpression($range, $item);
+        	}
+        	$ret = call_user_func_array('array_merge', $tmp);
+            sort($ret);
+        	unset($tmp);
+    	} elseif (self::ALL_VALUE == $expr[0]) {
         	if (isset($expr[1]) && self::SPLITER_DIVISOR == $expr[1]) {
             	$ret = range($range[0], $range[1], (int)substr($expr, 2));
         	} else {
             	$ret = true;
         	}
-    	} elseif (false !== strpos(self::SPLITER_MULTIVALUE, $expr)) {
-        	$tmp = array();
-        	foreach(explode(self::SPLITER_MULTIVALUE, $expr) as $item) {
-            	$tmp[] = $this->parseExpression($range, $expr);
-        	}
-        	$ret = call_user_func_array('array_merge', $tmp);
-            sort($ret);
-        	unset($tmp);
-    	} elseif (false !== strpos(self::SPLITER_RANGE, $expr)) {
+    	} elseif (false !== strpos($expr, self::SPLITER_RANGE)) {
         	$tmp = explode(self::SPLITER_RANGE, $expr);
         	$ret = range(max($range[0], $tmp[0]), min($range[1], $tmp[1]));
     	} elseif($range[0] <= $expr && $range[1] >= $expr) {
