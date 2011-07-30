@@ -19,16 +19,16 @@ class CronExpression {
     const VALUE_FOUND = 0;
     const VALUE_IN_RANGE = 1;
     const VALUE_RESET = 2;
-    protected $listDayOfWeek = array('sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat');
-    protected $listMonth = array(1 => 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec');
-    protected $parsedExpression = array();
-    protected $timeFromat = array(
+    static protected $listDayOfWeek = array('sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat');
+    static protected $listMonth = array(1 => 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec');
+    static protected $timeFromat = array(
         self::CRON_MINUTE => 'i',
         self::CRON_HOUR => 'H',
         self::CRON_DAY => 'd',
         self::CRON_MONTH => 'm',
         self::CRON_DAY_OF_WEEK => 'w',
     );
+    protected $parsedExpression;
 
     public function __construct($expression) {
         $tmp = preg_split('#\s+#', $expression);
@@ -52,7 +52,7 @@ class CronExpression {
         foreach ($this->parsedExpression as $pos => $set) {
             if (!( // Negation !!
                 true === $set
-                || in_array((int) $date->format($this->timeFromat[$pos]), $set)
+                || in_array((int) $date->format(static::$timeFromat[$pos]), $set)
                 )) {
                 $ret = false;
                 break;
@@ -72,10 +72,10 @@ class CronExpression {
             $date = clone $date;
         }
         $baseTimestamp = $date->getTimestamp();
-        $minute = $date->format($this->timeFromat[self::CRON_MINUTE]);
-        $hour = $date->format($this->timeFromat[self::CRON_HOUR]);
-        $day = $date->format($this->timeFromat[self::CRON_DAY]);
-        $month = $date->format($this->timeFromat[self::CRON_MONTH]);
+        $minute = $date->format(static::$timeFromat[self::CRON_MINUTE]);
+        $hour = $date->format(static::$timeFromat[self::CRON_HOUR]);
+        $day = $date->format(static::$timeFromat[self::CRON_DAY]);
+        $month = $date->format(static::$timeFromat[self::CRON_MONTH]);
         $year = $date->format('Y');
 
         $sets = $this->parsedExpression;
@@ -101,7 +101,7 @@ class CronExpression {
                     if (
                         true === $sets[self::CRON_DAY_OF_WEEK]
                         || in_array(
-                            $date->format($this->timeFromat[self::CRON_DAY_OF_WEEK]), $sets[self::CRON_DAY_OF_WEEK]
+                            $date->format(static::$timeFromat[self::CRON_DAY_OF_WEEK]), $sets[self::CRON_DAY_OF_WEEK]
                         )
                     ) {
                         $continue = false;
@@ -180,12 +180,12 @@ class CronExpression {
     }
 
     protected function parseMonth($expr) {
-        $expr = str_replace($this->listDayOfWeek, array_keys($this->listDayOfWeek), $expr);
+        $expr = str_replace(static::$listMonth, array_keys(static::$listMonth), $expr);
         return $this->parseExpression(array(1, 12), $expr);
     }
 
     protected function parseDayOfWeek($expr) {
-        $expr = str_replace($this->listDayOfWeek, array_keys($this->listDayOfWeek), $expr);
+        $expr = str_replace(static::$listDayOfWeek, array_keys(static::$listDayOfWeek), $expr);
         return $this->parseExpression(array(0, 6), $expr);
     }
 
