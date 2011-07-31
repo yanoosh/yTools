@@ -3,7 +3,6 @@
 namespace yTools;
 
 /**
- * @todo Add support expression "1-30/5".
  * @todo Add support for expressions that begin with "@".
  */
 class CronExpression {
@@ -15,7 +14,7 @@ class CronExpression {
     const ALL_VALUE = '*';
     const SPLITER_MULTIVALUE = ',';
     const SPLITER_RANGE = '-';
-    const SPLITER_DIVISOR = '/';
+    const SPLITER_DIVISION = '/';
     const VALUE_FOUND = 0;
     const VALUE_IN_RANGE = 1;
     const VALUE_RESET = 2;
@@ -31,17 +30,19 @@ class CronExpression {
     protected $parsedExpression;
 
     public function __construct($expression) {
-        $tmp = preg_split('#\s+#', $expression);
+        $tmp = mb_split('\\s+', trim($expression));
         $parsedExpression = array();
-        if (
-            4 < count($tmp)
-            && null != ($parsedExpression[self::CRON_MINUTE] = $this->parseMinute($tmp[self::CRON_MINUTE]))
-            && null != ($parsedExpression[self::CRON_HOUR] = $this->parseHour($tmp[self::CRON_HOUR]))
-            && null != ($parsedExpression[self::CRON_DAY] = $this->parseDay($tmp[self::CRON_DAY]))
-            && null != ($parsedExpression[self::CRON_MONTH] = $this->parseMonth($tmp[self::CRON_MONTH]))
-            && null != ($parsedExpression[self::CRON_DAY_OF_WEEK] = $this->parseDayOfWeek($tmp[self::CRON_DAY_OF_WEEK]))
-        ) {
-            $this->parsedExpression = $parsedExpression;
+        if (4 < count($tmp)) {
+            try {
+                $parsedExpression[self::CRON_MINUTE] = $this->parseMinute($tmp[self::CRON_MINUTE]);
+                $parsedExpression[self::CRON_HOUR] = $this->parseHour($tmp[self::CRON_HOUR]);
+                $parsedExpression[self::CRON_DAY] = $this->parseDay($tmp[self::CRON_DAY]);
+                $parsedExpression[self::CRON_MONTH] = $this->parseMonth($tmp[self::CRON_MONTH]);
+                $parsedExpression[self::CRON_DAY_OF_WEEK] = $this->parseDayOfWeek($tmp[self::CRON_DAY_OF_WEEK]);
+                $this->parsedExpression = $parsedExpression;
+            } catch (\InvalidArgumentException $e) {
+                throw new \InvalidArgumentException();
+            }
         } else {
             throw new \InvalidArgumentException();
         }
@@ -143,8 +144,6 @@ class CronExpression {
             return self::VALUE_RESET;
         } elseif (true === $array) {
             return self::VALUE_FOUND;
-        } else {
-            throw new \UnexpectedValueException();
         }
     }
 
@@ -198,21 +197,27 @@ class CronExpression {
             $ret = call_user_func_array('array_merge', $tmp);
             sort($ret);
             unset($tmp);
-        } elseif (self::ALL_VALUE == $expr[0]) {
-            if (isset($expr[1]) && self::SPLITER_DIVISOR == $expr[1]) {
-                $ret = range($range[0], $range[1], (int) substr($expr, 2));
+        } elseif (false !== mb_ereg('^(.*?)' . self::SPLITER_DIVISION . '([0-9]+)$', $expr, $regs)) {
+            $dividend = $this->parseExpression($range, $regs[1]);
+            $divisor = (int)$regs[2];
+            if (true === $dividend) {
+                $ret = range($range[0], $range[1], $divisor);
             } else {
-                $ret = true;
+                $ret = array_filter($dividend, function($dividend) use ($range, $divisor) {
+                   return 0 == ($dividend + $range[0]) % $divisor;
+                });
             }
         } elseif (false !== strpos($expr, self::SPLITER_RANGE)) {
             $tmp = explode(self::SPLITER_RANGE, $expr);
             $ret = range(max($range[0], $tmp[0]), min($range[1], $tmp[1]));
+        } elseif (self::ALL_VALUE == $expr) {
+            $ret = true;
         } elseif ($range[0] <= $expr && $range[1] >= $expr) {
             $ret = array((int) $expr);
         } else {
-            $ret = null;
+            throw new \InvalidArgumentException();
         }
         return $ret;
     }
-
+    
 }
