@@ -18,14 +18,14 @@ class DesignePatternDecorator {
      *
      * @var type 
      */
-    protected $decoratedObject = null;
+    static protected $decoratedObject = null;
 
     /**
      *
      * @param object $object 
      */
     public function __construct($object) {
-        $this->decoratedObject = $object;
+        static::$decoratedObject = $object;
     }
 
     /**
@@ -40,7 +40,7 @@ class DesignePatternDecorator {
     }
 
     public static function __callStatic($function, $arguments) {
-        return call_user_func_array(get_class($this->decoratedObject) . '::' . $fuunction, $arguments);
+        return call_user_func_array(get_class(static::$decoratedObject) . '::' . $fuunction, $arguments);
     }
 
     public function __set($name, $value) {
