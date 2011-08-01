@@ -208,12 +208,12 @@ class CronExpression {
             unset($tmp);
         } elseif (false !== mb_ereg('^(.*?)' . self::SPLITER_DIVISION . '([0-9]+)$', $expr, $regs)) {
             $dividend = $this->parseExpression($range, $regs[1]);
-            $divisor = (int)$regs[2];
+            $divisor = (int) $regs[2];
             if (true === $dividend) {
                 $ret = range($range[0], $range[1], $divisor);
             } else {
                 $ret = array_filter($dividend, function($dividend) use ($range, $divisor) {
-                   return 0 == ($dividend + $range[0]) % $divisor;
+                    return 0 == (($dividend - $range[0]) % $divisor);
                 });
             }
         } elseif (false !== strpos($expr, self::SPLITER_RANGE)) {
