@@ -11,9 +11,6 @@
 
 namespace yTools;
 
-/**
- * @todo Add support for expressions that begin with "@".
- */
 class CronExpression {
     const CRON_MINUTE = 0;
     const CRON_HOUR = 1;
@@ -27,6 +24,50 @@ class CronExpression {
     const VALUE_FOUND = 0;
     const VALUE_IN_RANGE = 1;
     const VALUE_RESET = 2;
+    static protected $predefinedExpression = array(
+        '@yearly' => array(
+            self::CRON_MINUTE => array(0),
+            self::CRON_HOUR => array(0),
+            self::CRON_DAY => array(1),
+            self::CRON_MONTH => array(1),
+            self::CRON_DAY_OF_WEEK => true,
+        ),
+        '@annually' => array(
+            self::CRON_MINUTE => array(0),
+            self::CRON_HOUR => array(0),
+            self::CRON_DAY => array(1),
+            self::CRON_MONTH => array(1),
+            self::CRON_DAY_OF_WEEK => true,
+        ),
+        '@monthly' => array(
+            self::CRON_MINUTE => array(0),
+            self::CRON_HOUR => array(0),
+            self::CRON_DAY => array(1),
+            self::CRON_MONTH => true,
+            self::CRON_DAY_OF_WEEK => true,
+        ),
+        '@weekly' => array(
+            self::CRON_MINUTE => array(0),
+            self::CRON_HOUR => array(0),
+            self::CRON_DAY => true,
+            self::CRON_MONTH => true,
+            self::CRON_DAY_OF_WEEK => array(0),
+        ),
+        '@daily' => array(
+            self::CRON_MINUTE => array(0),
+            self::CRON_HOUR => array(0),
+            self::CRON_DAY => true,
+            self::CRON_MONTH => true,
+            self::CRON_DAY_OF_WEEK => true,
+        ),
+        '@hourly' => array(
+            self::CRON_MINUTE => array(0),
+            self::CRON_HOUR => true,
+            self::CRON_DAY => true,
+            self::CRON_MONTH => true,
+            self::CRON_DAY_OF_WEEK => true,
+        ),
+    );
     static protected $listDayOfWeek = array('sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat');
     static protected $listMonth = array(1 => 'jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec');
     static protected $timeFromat = array(
@@ -39,20 +80,29 @@ class CronExpression {
     protected $parsedExpression;
 
     public function __construct($expression) {
-        $tmp = mb_split('\\s+', trim($expression));
-        $parsedExpression = array();
-        if (4 < count($tmp)) {
-            try {
-                $parsedExpression[self::CRON_MINUTE] = $this->parseMinute($tmp[self::CRON_MINUTE]);
-                $parsedExpression[self::CRON_HOUR] = $this->parseHour($tmp[self::CRON_HOUR]);
-                $parsedExpression[self::CRON_DAY] = $this->parseDay($tmp[self::CRON_DAY]);
-                $parsedExpression[self::CRON_MONTH] = $this->parseMonth($tmp[self::CRON_MONTH]);
-                $parsedExpression[self::CRON_DAY_OF_WEEK] = $this->parseDayOfWeek($tmp[self::CRON_DAY_OF_WEEK]);
-                $this->parsedExpression = $parsedExpression;
-            } catch (\InvalidArgumentException $e) {
-                throw new \InvalidArgumentException();
+        try {
+            $expression = trim($expression);
+            if ('@' === $expression[0]) {
+                if (isset(self::$predefinedExpression[$expression])) {
+                    $parsedExpression = self::$predefinedExpression[$expression];
+                } else {
+                    throw new \InvalidArgumentException();
+                }
+            } else {
+                $tmp = mb_split('\\s+', $expression);
+                $parsedExpression = array();
+                if (4 < count($tmp)) {
+                    $parsedExpression[self::CRON_MINUTE] = $this->parseMinute($tmp[self::CRON_MINUTE]);
+                    $parsedExpression[self::CRON_HOUR] = $this->parseHour($tmp[self::CRON_HOUR]);
+                    $parsedExpression[self::CRON_DAY] = $this->parseDay($tmp[self::CRON_DAY]);
+                    $parsedExpression[self::CRON_MONTH] = $this->parseMonth($tmp[self::CRON_MONTH]);
+                    $parsedExpression[self::CRON_DAY_OF_WEEK] = $this->parseDayOfWeek($tmp[self::CRON_DAY_OF_WEEK]);
+                } else {
+                    throw new \InvalidArgumentException();
+                }
             }
-        } else {
+            $this->parsedExpression = $parsedExpression;
+        } catch (\InvalidArgumentException $e) {
             throw new \InvalidArgumentException();
         }
     }
@@ -151,7 +201,7 @@ class CronExpression {
             }
             $value = reset($array);
             return self::VALUE_RESET;
-        } elseif (true === $array) {
+        } else {
             return self::VALUE_FOUND;
         }
     }
@@ -228,5 +278,5 @@ class CronExpression {
         }
         return $ret;
     }
-    
+
 }
