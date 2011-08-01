@@ -74,23 +74,28 @@ class ProcessGuard {
 
     /**
      *
-     * @param string $prefix 
+     * @param string $prefix
+     * @return ProcessGuard
      */
     public function setFlockPrefix($prefix) {
         $this->flockPrefix = mb_ereg_replace('[^a-zA-Z0-9]+', '_', $prefix);
+        return $this;
     }
 
     /**
      *
-     * @param type $path 
+     * @param type $path
+     * @return ProcessGuard
      */
     public function setFlockDir($path) {
         $this->flockDir = realpath($path);
+        return $this;
     }
 
     /**
      *
-     * @param integer $number 
+     * @param integer $number
+     * @return ProcessGuard
      */
     public function setProcessNumber($number) {
         if (0 < (int) $number) {
@@ -98,14 +103,17 @@ class ProcessGuard {
         } else {
             $this->processNumber = 1;
         }
+        return $this;
     }
 
     /**
      *
-     * @param boolean $enable 
+     * @param boolean $enable
+     * @return ProcessGuard
      */
     public function setLastParamFlockObject($enable) {
         $this->addFlockObject = (bool) $enable;
+        return $this;
     }
 
     public function getNumberOfLocks() {
