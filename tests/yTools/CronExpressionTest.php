@@ -11,49 +11,37 @@ require_once dirname(__FILE__) . '/../../src/yTools/CronExpression.php';
 class CronExpressionTest extends \PHPUnit_Framework_TestCase {
 
     /**
-     * @var CronExpression[]
+     * @var string[]
      */
-    protected $object;
+    protected $expressions = array(
+        0 => '* * * * *',
+        1 => '0-59 0-23 1-31 1-12 0-6',
+        2 => '0-70 0-70 0-70 0-70 0-70',
+        3 => '*/2 * * * *',
+        4 => '*/3 * * * *',
+        5 => '*/3 * */5 * sun',
+        6 => '10-15 6-9 * * *',
+        7 => '13,16,19,22 12,17,22 * * *',
+        8 => '1-10,30-40 */5,*/3 * 7 *',
+        9 => '10-30/3 0-11/2 * * */2',
+        10 => '10-30/3 0-11/2 * * sun,tue,thu,sat',
+        11 => '0 0 1-15/3 3-11/2 *',
+        12 => '0 0 1-15/3 mar,may,jul,sep,nov *',
+    );
     /**
      *
      * @var string[]
      */
-    protected $dateList = array();
-
-    /**
-     * Sets up the fixture, for example, opens a network connection.
-     * This method is called before a test is executed.
-     */
-    protected function setUp() {
-        $this->object = array(
-            0 => new CronExpression('* * * * *'),
-            1 => new CronExpression('*/2 * * * *'),
-            2 => new CronExpression('*/3 * * * *'),
-            3 => new CronExpression('*/3 * */5 * sun'),
-            4 => new CronExpression('10-15 6-9 * * *'),
-            5 => new CronExpression('13,16,19,22 12,17,22 * * *'),
-            6 => new CronExpression('1-10,30-40 */5,*/3 * 7 *'),
-            7 => new CronExpression('10-30/3 0-11/2 * * */2'),
-//            6 => new CronExpression('0-59 0-23 1-31 1-12 0-6'),
-//            7 => new CronExpression('0-70 0-70 0-70 0-70 0-70'),
-        );
-        $this->dateList = array(
-            new \DateTime('2011-07-21 22:13:00'),
-            new \DateTime('2011-08-23 09:14:00'),
-            new \DateTime('2010-02-01 06:15:00'),
-            new \DateTime('2013-10-23 12:16:00'),
-            new \DateTime('2011-05-01 00:06:00'),
-            new \DateTime('2011-07-31 04:21:00'),
-        );
-    }
-
-    /**
-     * Tears down the fixture, for example, closes a network connection.
-     * This method is called after a test is executed.
-     */
-    protected function tearDown() {
-        
-    }
+    protected $datesList = array(
+        '2011-07-21 22:13:00',
+        '2011-08-23 09:14:00',
+        '2010-02-01 06:15:00',
+        '2013-10-23 12:16:00',
+        '2011-05-01 00:06:00',
+        '2011-07-31 04:21:00',
+        '2011-12-31 23:59:59',
+        '2011-11-10 00:00:00',
+    );
 
     public function testConstruct() {
         try {
@@ -67,33 +55,56 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @todo Implement testCheckDate().
+     * @dataProvider providerCheckData
      */
-    public function testCheckDate() {
-        $result = array(
-            0 => array(true,  true,  true,  true,  true,  true),
-            1 => array(false, true,  false, true,  true,  false),
-            2 => array(false, false, true,  false, true,  true),
-            3 => array(false, false, false, false, true,  true),
-            4 => array(false, true,  true,  false, false, false),
-            5 => array(true,  false, false, true,  false, false),
-            6 => array(false, false, false, false, false, false),
-            7 => array(false, false, false, false, false, true),
+    public function testCheckDate($expression, $in, $out) {
+        $cron = new CronExpression($expression);
+        $this->assertEquals(
+            $out, $cron->checkDate(new \DateTime($in))
         );
-        foreach ($this->object as $objectID => $object) {
-            foreach ($this->dateList as $dateID => $date) {
-                $this->assertEquals(
-                    $result[$objectID][$dateID], $object->checkDate($date), sprintf('CronExpression object ID: %d, date ID: %d.', $objectID, $dateID)
+    }
+
+    public function providerCheckData() {
+        $result = array(
+            0 => array(true, true, true, true, true, true, true, true),
+            3 => array(false, true, false, true, true, false, false, true),
+            4 => array(false, false, true, false, true, true, false, true),
+            5 => array(false, false, false, false, true, true, false, false),
+            6 => array(false, true, true, false, false, false, false, false),
+            7 => array(true, false, false, true, false, false, false, false),
+            8 => array(false, false, false, false, false, false, false, false),
+            9 => array(false, false, false, false, false, true, false, false),
+            11 => array(false, false, false, false, false, false, false, true)
+        );
+        $result[1] = $result[0];
+        $result[2] = $result[0];
+        $result[10] = $result[9];
+        $result[12] = $result[11];
+        $ret = array();
+        foreach ($this->expressions as $exprID => $expression) {
+            foreach ($this->datesList as $dateID => $date) {
+                $ret[$expression . ': ' . $date . ': ' . $result[$exprID][$dateID]] = array(
+                    $expression,
+                    $date,
+                    $result[$exprID][$dateID]
                 );
             }
         }
+        return $ret;
     }
 
     /**
-     * @todo Implement testGetNextDate().
+     * @dataProvider providerGetNextDate
      */
-    public function testGetNextDate() {
-        $resultDate = array(
+    public function testGetNextDate($expression, $in, $out) {
+        $cron = new CronExpression($expression);
+        $this->assertEquals(
+            new \DateTime($out), $cron->getNextDate(new \DateTime($in))
+        );
+    }
+
+    public function providerGetNextDate() {
+        $result = array(
             0 => array(
                 '2011-07-21 22:14:00',
                 '2011-08-23 09:15:00',
@@ -101,79 +112,123 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase {
                 '2013-10-23 12:17:00',
                 '2011-05-01 00:07:00',
                 '2011-07-31 04:22:00',
+                '2012-01-01 00:00:00',
+                '2011-11-10 00:01:00',
             ),
-            1 => array(
+            3 => array(
                 '2011-07-21 22:14:00',
                 '2011-08-23 09:16:00',
                 '2010-02-01 06:16:00',
                 '2013-10-23 12:18:00',
                 '2011-05-01 00:08:00',
                 '2011-07-31 04:22:00',
+                '2012-01-01 00:00:00',
+                '2011-11-10 00:02:00',
             ),
-            2 => array(
+            4 => array(
                 '2011-07-21 22:15:00',
                 '2011-08-23 09:15:00',
                 '2010-02-01 06:18:00',
                 '2013-10-23 12:18:00',
                 '2011-05-01 00:09:00',
                 '2011-07-31 04:24:00',
+                '2012-01-01 00:00:00',
+                '2011-11-10 00:03:00',
             ),
-            3 => array(
+            5 => array(
                 '2011-07-31 00:00:00',
                 '2011-09-11 00:00:00',
                 '2010-02-21 00:00:00',
                 '2013-12-01 00:00:00',
                 '2011-05-01 00:09:00',
                 '2011-07-31 04:24:00',
+                '2012-01-01 00:00:00',
+                '2011-12-11 00:00:00',
             ),
-            4 => array(
+            6 => array(
                 '2011-07-22 06:10:00',
                 '2011-08-23 09:15:00',
                 '2010-02-01 07:10:00',
                 '2013-10-24 06:10:00',
                 '2011-05-01 06:10:00',
                 '2011-07-31 06:10:00',
+                '2012-01-01 06:10:00',
+                '2011-11-10 06:10:00',
             ),
-            5 => array(
+            7 => array(
                 '2011-07-21 22:16:00',
                 '2011-08-23 12:13:00',
                 '2010-02-01 12:13:00',
                 '2013-10-23 12:19:00',
                 '2011-05-01 12:13:00',
                 '2011-07-31 12:13:00',
+                '2012-01-01 12:13:00',
+                '2011-11-10 12:13:00',
             ),
-            6 => array(
+            8 => array(
                 '2011-07-22 00:01:00',
                 '2012-07-01 00:01:00',
                 '2010-07-01 00:01:00',
                 '2014-07-01 00:01:00',
                 '2011-07-01 00:01:00',
                 '2011-07-31 05:01:00',
+                '2012-07-01 00:01:00',
+                '2012-07-01 00:01:00',
             ),
-            7 => array(
+            9 => array(
                 '2011-07-23 00:12:00',
                 '2011-08-23 10:12:00',
                 '2010-02-02 00:12:00',
                 '2013-10-24 00:12:00',
                 '2011-05-01 00:12:00',
                 '2011-07-31 04:24:00',
+                '2012-01-01 00:12:00',
+                '2011-11-10 00:12:00',
+            ),
+            11 => array(
+                '2011-09-01 00:00:00',
+                '2011-09-01 00:00:00',
+                '2010-03-01 00:00:00',
+                '2013-11-01 00:00:00',
+                '2011-05-04 00:00:00',
+                '2011-09-01 00:00:00',
+                '2012-03-01 00:00:00',
+                '2011-11-13 00:00:00',
             )
         );
-        foreach ($this->object as $objectID => $object) {
-            foreach ($this->dateList as $dateID => $date) {
-                $this->assertEquals(
-                    new \DateTime($resultDate[$objectID][$dateID]), 
-                    $object->getNextDate($date), 
-                    sprintf('CronExpression object ID: %d, date: %s.', $objectID, $date->format('Y-m-d H:i:s'))
+        $result[1] = $result[0];
+        $result[2] = $result[0];
+        $result[10] = $result[9];
+        $result[12] = $result[11];
+        $ret = array();
+        foreach ($this->expressions as $exprID => $expression) {
+            foreach ($this->datesList as $dateID => $date) {
+                $ret[$expression . ': ' . $date . ': ' . $result[$exprID][$dateID]] = array(
+                    $expression,
+                    $date,
+                    $result[$exprID][$dateID]
                 );
             }
         }
+        return $ret;
+    }
 
+    public function testGetNextDateWithNullArg() {
         $dateIn = new \DateTime();
-        $dateOut = $this->object[0]->getNextDate();
+        $cron = new CronExpression($this->expressions[0]);
+        $dateOut = $cron->getNextDate();
         $this->assertType('DateTime', $dateOut);
         $interval = $dateOut->diff($dateIn);
         $this->assertEquals(1, $interval->invert);
     }
 
+    /**
+     * @dataProvider providerPredefinedExpression
+     */
+    public function testPredefinedExpression($expression, $in, $out) {
+        $tmp = new CronExpression($expression);
+        $this->assertEquals(
+            $out, $tmp->checkDate(new \DateTime($in))
+        );
+    }
 }
