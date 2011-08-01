@@ -52,6 +52,10 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase {
             new CronExpression('a b c d e');
             $this->fail('An expected exception has not been raised.');
         } catch (\InvalidArgumentException $expected) {}
+        try {
+            new CronExpression('@nopredef');
+            $this->fail('An expected exception has not been raised.');
+        } catch (\InvalidArgumentException $expected) {}
     }
 
     /**
@@ -231,4 +235,90 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase {
             $out, $tmp->checkDate(new \DateTime($in))
         );
     }
+
+    protected function checkNextDate($cases) {
+        foreach ($cases as $case) {
+            $tmp = new CronExpression($case['expression']);
+            $this->assertEquals(new \DateTime($case['out']), $tmp->getNextDate(\DateTime($case['in'])));
+        }
+    }
+
+    public function providerPredefinedExpression() {
+
+        function yearly($in, $out = true) {
+            return array('expression' => '@yearly', 'in' => $in, 'out' => $out,);
+        }
+
+        function annually($in, $out = true) {
+            return array('expression' => '@annually', 'in' => $in, 'out' => $out,);
+        }
+
+        function monthly($in, $out = true) {
+            return array('expression' => '@monthly', 'in' => $in, 'out' => $out,);
+        }
+
+        function weekly($in, $out = true) {
+            return array('expression' => '@weekly', 'in' => $in, 'out' => $out,);
+        }
+
+        function daily($in, $out = true) {
+            return array('expression' => '@daily', 'in' => $in, 'out' => $out,);
+        }
+
+        function hourly($in, $out = true) {
+            return array('expression' => '@hourly', 'in' => $in, 'out' => $out,);
+        }
+
+        return array(
+            yearly('2012-01-01 00:00:30'),
+            yearly('2013-01-01 00:00:40'),
+            yearly('2016-01-01 00:00:50'),
+            yearly('2020-01-01 00:00:55'),
+            yearly('2012-01-01 00:01:00', false),
+            yearly('2018-02-01 00:00:00', false),
+            yearly('2021-01-01 10:00:00', false),
+            yearly('2010-01-01 00:10:00', false),
+            annually('2012-01-01 00:00:50'),
+            annually('2018-01-01 00:00:06'),
+            annually('2021-01-01 00:00:07'),
+            annually('2010-01-01 00:00:08'),
+            annually('2012-01-01 00:01:00', false),
+            annually('2018-02-01 00:00:00', false),
+            annually('2021-01-01 10:00:00', false),
+            annually('2010-01-01 00:10:00', false),
+            monthly('2012-07-01 00:00:00'),
+            monthly('2014-08-01 00:00:00'),
+            monthly('2010-10-01 00:00:00'),
+            monthly('2015-02-01 00:00:00'),
+            monthly('2012-07-01 10:00:00', false),
+            monthly('2014-08-01 00:10:00', false),
+            monthly('2010-10-13 00:00:10', false),
+            monthly('2015-02-01 16:00:00', false),
+            weekly('2011-07-31 00:00:00'),
+            weekly('2011-08-21 00:00:00'),
+            weekly('2011-09-18 00:00:00'),
+            weekly('2011-10-30 00:00:00'),
+            weekly('2012-07-20 00:00:00', false),
+            weekly('2012-08-30 00:00:00', false),
+            weekly('2012-09-18 10:00:00', false),
+            weekly('2012-10-30 00:11:00', false),
+            daily('2012-07-15 00:00:10'),
+            daily('2030-08-12 00:00:20'),
+            daily('2012-01-30 00:00:30'),
+            daily('2015-09-15 00:00:40'),
+            daily('2012-07-15 01:00:00', false),
+            daily('2030-08-12 00:10:00', false),
+            daily('2015-09-15 23:59:59', false),
+            daily('2011-12-31 23:59:59', false),
+            hourly('2015-09-15 01:00:00'),
+            hourly('2015-01-21 12:00:00'),
+            hourly('2015-11-20 22:00:00'),
+            hourly('2015-06-24 17:00:00'),
+            hourly('2015-09-15 01:10:00', false),
+            hourly('2015-01-21 12:20:00', false),
+            hourly('2015-11-20 22:30:00', false),
+            hourly('2011-12-31 23:59:59', false),
+        );
+    }
+
 }
