@@ -40,7 +40,7 @@ class DesignePatternDecorator {
     }
 
     public static function __callStatic($function, $arguments) {
-        return call_user_func_array(get_class(static::$decoratedObject) . '::' . $fuunction, $arguments);
+        return call_user_func_array(get_class(static::$decoratedObject) . '::' . $function, $arguments);
     }
 
     public function __set($name, $value) {
