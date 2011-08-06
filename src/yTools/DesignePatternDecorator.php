@@ -11,7 +11,7 @@
 
 namespace yTools;
 
-class DesignePatternDecorator {
+abstract class DesignePatternDecorator {
 
     /**
      * Decorated object.
