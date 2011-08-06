@@ -43,18 +43,43 @@ abstract class DesignePatternDecorator {
         return call_user_func_array(get_class(static::$decoratedObject) . '::' . $function, $arguments);
     }
 
+    /**
+     * Writing data to property.
+     * Function does not work with static variables. https://bugs.php.net/bug.php?id=45002
+     *
+     * @param type $name Property name.
+     * @param mix $value Property data.
+     */
     public function __set($name, $value) {
         static::$decoratedObject->$name = $value;
     }
 
+    /**
+     * Reading data from property.
+     * Function does not work with static variables. https://bugs.php.net/bug.php?id=45002
+     *
+     * @param type $name Property name.
+     * @return mix Property data.
+     */
     public function __get($name) {
         return static::$decoratedObject->$name;
     }
 
+    /**
+     * Check is property exists.
+     *
+     * @param string $name Property name.
+     * @return boolean
+     */
     public function __isset($name) {
         return isset(static::$decoratedObject->$name);
     }
 
+    /**
+     * Unsetting property.
+     *
+     * @param string $name Property name.
+     */
     public function __unset($name) {
         unset(static::$decoratedObject->$name);
     }
