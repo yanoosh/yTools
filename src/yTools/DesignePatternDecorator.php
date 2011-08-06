@@ -51,4 +51,12 @@ abstract class DesignePatternDecorator {
         return static::$decoratedObject->$name;
     }
 
+    public function __isset($name) {
+        return isset(static::$decoratedObject->$name);
+    }
+
+    public function __unset($name) {
+        unset(static::$decoratedObject->$name);
+    }
+
 }
