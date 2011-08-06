@@ -36,7 +36,7 @@ class DesignePatternDecorator {
      * @return mix
      */
     public function __call($function, $arguments) {
-        return call_user_func_array(array($this, $function), $arguments);
+        return call_user_func_array(array(static::$decoratedObject, $function), $arguments);
     }
 
     public static function __callStatic($function, $arguments) {
