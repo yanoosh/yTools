@@ -44,11 +44,11 @@ abstract class DesignePatternDecorator {
     }
 
     public function __set($name, $value) {
-        $this->decoratedObject->$name = $value;
+        static::$decoratedObject->$name = $value;
     }
 
     public function __get($name) {
-        return $this->decoratedObject->$name;
+        return static::$decoratedObject->$name;
     }
 
 }
