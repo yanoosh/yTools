@@ -58,14 +58,14 @@ class ProcessGuard {
         if (!empty($function)) {
             if (is_object($object)) {
                 $this->callFunction = function($args) use($object, $function) {
-                        $tmp = new \ReflectionMethod(get_class($object), $function);
-                        $tmp->setAccessible(true);
-                        return $tmp->invokeArgs($object, $args);
-                    };
+                    $tmp = new \ReflectionMethod(get_class($object), $function);
+                    $tmp->setAccessible(true);
+                    return $tmp->invokeArgs($object, $args);
+                };
             } else {
                 $this->callFunction = function($args) use($function) {
-                        return call_user_func_array($function, $args);
-                    };
+                    return call_user_func_array($function, $args);
+                };
             }
             $this->setFlockPrefix($function);
             $this->flockDir = __DIR__;
@@ -73,9 +73,10 @@ class ProcessGuard {
     }
 
     /**
-     *
+     * Sets the prefix name of flocked files.
+     * 
      * @param string $prefix
-     * @return ProcessGuard
+     * @return ProcessGuard Returns this object.
      */
     public function setFlockPrefix($prefix) {
         $this->flockPrefix = mb_ereg_replace('[^a-zA-Z0-9]+', '_', $prefix);
@@ -83,9 +84,10 @@ class ProcessGuard {
     }
 
     /**
+     * Sets the path where flockes will be saved.
      *
-     * @param type $path
-     * @return ProcessGuard
+     * @param string $path
+     * @return ProcessGuard Returns this object.
      */
     public function setFlockDir($path) {
         $this->flockDir = realpath($path);
@@ -93,9 +95,10 @@ class ProcessGuard {
     }
 
     /**
+     * Sets maximum processes number which could be run.
      *
-     * @param integer $number
-     * @return ProcessGuard
+     * @param int $number
+     * @return ProcessGuard Returns this object.
      */
     public function setProcessNumber($number) {
         if (0 < (int) $number) {
@@ -107,20 +110,20 @@ class ProcessGuard {
     }
 
     /**
+     * Returns a number of locked files.
      *
-     * @param boolean $enable
-     * @return ProcessGuard
+     * @return integer
      */
-    public function setLastParamFlockObject($enable) {
-        $this->addFlockObject = (bool) $enable;
-        return $this;
-    }
-
     public function getNumberOfLocks() {
         return count($this->getLocksProcessInfo());
     }
 
-    public function getLocksProcessInfo() {
+    /**
+     * Gets a information about running processes.
+     *
+     * @return array
+     */
+    public function getRunningProcessesInfo() {
         $ids = array();
         for ($flockNumber = 0; $flockNumber < $this->processNumber; $flockNumber++) {
             $filePath = $this->getLockFile($flockNumber);
@@ -142,18 +145,28 @@ class ProcessGuard {
         return $ids;
     }
 
+    /**
+     * Returns flock number of running process.
+     *
+     * @return integer
+     */
     public function getFlockNumber() {
         return $this->flockNumber;
     }
 
+    /**
+     * Gets process number of running process.
+     *
+     * @return integer
+     */
     public function getProcessId() {
         return $this->processId;
     }
 
     /**
-     * @todo Uruchamianie po funckji anonimowej
+     * @todo Add support for lambda function.
      *
-     * @return type 
+     * @return type
      */
     public function run() {
         if ($this->findAndLock()) {
@@ -180,8 +193,7 @@ class ProcessGuard {
 
     /**
      *
-     * @param type $flockNumber
-     * @param integer $processId
+     * @param integer $flockNumber
      * @return bool
      */
     private function lock($flockNumber) {
