@@ -7,7 +7,7 @@ class DesignePatternDecoratorTest extends \PHPUnit_Framework_TestCase {
     protected $object = null;
 
     public function setUp() {
-        $this->object = new TestDecorator(new TestClass());
+        $this->object = new TestDecorator(new HelperClassDesignePatternDecoratorTest());
     }
 
     public function testCall() {
@@ -31,7 +31,7 @@ class DesignePatternDecoratorTest extends \PHPUnit_Framework_TestCase {
 
 }
 
-class TestClass {
+class HelperClassDesignePatternDecoratorTest {
 
     public $variableObject = 'variableObject';
 
