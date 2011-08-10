@@ -219,7 +219,7 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase {
         $dateIn = new \DateTime();
         $cron = new CronExpression($this->expressions[0]);
         $dateOut = $cron->getNextDate();
-        $this->assertType('DateTime', $dateOut);
+        $this->assertInstanceOf('DateTime', $dateOut);
         $interval = $dateOut->diff($dateIn);
         $this->assertEquals(1, $interval->invert);
     }
