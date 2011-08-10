@@ -44,15 +44,15 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase {
     public function testConstruct() {
         try {
             new CronExpression('*');
-            $this->fail('An expected exception has not been raised.');
+            $this->fail('The expected exception has not been raised.');
         } catch (\InvalidArgumentException $expected) {}
         try {
             new CronExpression('a b c d e');
-            $this->fail('An expected exception has not been raised.');
+            $this->fail('The expected exception has not been raised.');
         } catch (\InvalidArgumentException $expected) {}
         try {
             new CronExpression('@nopredef');
-            $this->fail('An expected exception has not been raised.');
+            $this->fail('The expected exception has not been raised.');
         } catch (\InvalidArgumentException $expected) {}
     }
 
