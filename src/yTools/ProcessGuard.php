@@ -77,6 +77,9 @@ class ProcessGuard {
         return $this;
     }
 
+    public function getLockPrefix() {
+        return $this->lockPrefix;
+    }
 
     /**
      * Sets maximum processes number which could be run.
@@ -91,6 +94,10 @@ class ProcessGuard {
             $this->procMaxNumber = 1;
         }
         return $this;
+    }
+
+    public function getProcMaxNumber() {
+        return $this->procMaxNumber;
     }
 
     /**
