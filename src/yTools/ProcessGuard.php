@@ -43,8 +43,27 @@ class ProcessGuard {
      */
     private $processId = null;
 
-    public function __construct() {
-        $this->lockDir = getcwd();
+    /**
+     *
+     * @param string $lockDirectory The path where flockes will be saved.
+     */
+    public function __construct($lockDirectory) {
+        if(!is_dir($lockDirectory)) {
+            throw new \InvalidArgumentException('Given path does not exists or is not a directory. ' . $lockDirectory);
+        }
+        if (!is_writable($lockDirectory)) {
+            throw new \InvalidArgumentException('In given path could not write a file.');
+        }
+        $this->lockDir = $lockDirectory;
+    }
+
+    /**
+     * Gets the path where flockes will be saved.
+     *
+     * @return string
+     */
+    public function getLockDirectory() {
+        return $this->lockDir;
     }
 
     /**
@@ -58,16 +77,6 @@ class ProcessGuard {
         return $this;
     }
 
-    /**
-     * Sets the path where lockes will be saved.
-     *
-     * @param string $path
-     * @return ProcessGuard Returns this object.
-     */
-    public function setlockDir($path) {
-        $this->lockDir = realpath($path);
-        return $this;
-    }
 
     /**
      * Sets maximum processes number which could be run.
