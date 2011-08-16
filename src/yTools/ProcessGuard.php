@@ -16,7 +16,7 @@ class ProcessGuard {
      *
      * @var integer
      */
-    private $processNumber = 1;
+    private $procMaxNumber = 1;
     /**
      *
      * @var file
@@ -72,7 +72,7 @@ class ProcessGuard {
      * @param string $prefix
      * @return ProcessGuard Returns this object.
      */
-    public function setlockPrefix($prefix) {
+    public function setLockPrefix($prefix) {
         $this->lockPrefix = mb_ereg_replace('[^a-zA-Z0-9]+', '_', $prefix);
         return $this;
     }
@@ -84,11 +84,11 @@ class ProcessGuard {
      * @param int $number
      * @return ProcessGuard Returns this object.
      */
-    public function setProcessNumber($number) {
+    public function setProcMaxNumber($number) {
         if (0 < (int) $number) {
-            $this->processNumber = (int) $number;
+            $this->procMaxNumber = (int) $number;
         } else {
-            $this->processNumber = 1;
+            $this->procMaxNumber = 1;
         }
         return $this;
     }
@@ -98,8 +98,8 @@ class ProcessGuard {
      *
      * @return integer
      */
-    public function getNumberOlocks() {
-        return count($this->getLocksProcessInfo());
+    public function getProcNumber() {
+        return count($this->getProcInfo());
     }
 
     /**
@@ -107,10 +107,10 @@ class ProcessGuard {
      *
      * @return array
      */
-    public function getRunningProcessesInfo() {
+    public function getProcInfo() {
         $ids = array();
-        for ($lockNumber = 1; $lockNumber <= $this->processNumber; $lockNumber++) {
-            $filePath = $this->getLockFile($lockNumber);
+        for ($lockId = 1; $lockId <= $this->procMaxNumber; $lockId++) {
+            $filePath = $this->getLockFile($lockId);
             if (
                 file_exists($filePath)
                 && null != ($lockFile = fopen($filePath, 'r'))
@@ -118,7 +118,7 @@ class ProcessGuard {
                 if (!flock($lockFile, LOCK_EX | LOCK_NB)) {
                     $ids[] = array(
                         'process_id' => (int) fread($lockFile, 32),
-                        'lock_number' => $lockNumber,
+                        'lock_id' => $lockId,
                         'file_path' => $filePath,
                         'modified_date_time' => filemtime($filePath),
                     );
@@ -134,7 +134,7 @@ class ProcessGuard {
      *
      * @return integer
      */
-    public function getlockNumber() {
+    public function getLockId() {
         return $this->lockNumber;
     }
 
@@ -143,7 +143,7 @@ class ProcessGuard {
      *
      * @return integer
      */
-    public function getProcessId() {
+    public function getProcId() {
         return $this->processId;
     }
 
@@ -171,7 +171,7 @@ class ProcessGuard {
     }
 
     private function findAndLock() {
-        for ($lockNumber = 1; $lockNumber <= $this->processNumber; $lockNumber++) {
+        for ($lockNumber = 1; $lockNumber <= $this->procMaxNumber; $lockNumber++) {
             if ($this->lock($lockNumber)) {
                 return true;
             }
@@ -211,7 +211,7 @@ class ProcessGuard {
 
     private function getLockFile($processNumber) {
         return $this->lockDir . DIRECTORY_SEPARATOR . sprintf(
-            '%s-%03d-%03d.flock', $this->lockPrefix, $this->processNumber, $processNumber
+            '%s-%03d-%03d.flock', $this->lockPrefix, $this->procMaxNumber, $processNumber
         );
     }
 
