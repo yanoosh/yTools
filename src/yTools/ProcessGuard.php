@@ -157,6 +157,10 @@ class ProcessGuard {
         }
     }
 
+    public function __clone() {
+        $this->unlock();
+    }
+
     private function findAndLock() {
         for ($lockNumber = 0; $lockNumber < $this->processNumber; $lockNumber++) {
             if ($this->lock($lockNumber)) {
