@@ -178,7 +178,7 @@ class ProcessGuard {
     private function lock($lockNumber) {
         $lockFile = $this->getLockFile($lockNumber);
         if (is_resource($this->lockFile)) {
-            $this->unlock();
+            throw new \RuntimeException('The object is already in use.');
         }
         $this->lockFile = fopen($lockFile, 'a');
         if (flock($this->lockFile, LOCK_EX | LOCK_NB)) {
