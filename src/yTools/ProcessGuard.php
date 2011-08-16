@@ -12,12 +12,6 @@
 namespace yTools;
 
 class ProcessGuard {
-
-    /**
-     *
-     * @var array
-     */
-    private $callFunction = null;
     /**
      *
      * @var integer
