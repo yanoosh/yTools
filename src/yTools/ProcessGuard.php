@@ -100,7 +100,7 @@ class ProcessGuard {
      */
     public function getRunningProcessesInfo() {
         $ids = array();
-        for ($lockNumber = 0; $lockNumber < $this->processNumber; $lockNumber++) {
+        for ($lockNumber = 1; $lockNumber <= $this->processNumber; $lockNumber++) {
             $filePath = $this->getLockFile($lockNumber);
             if (
                 file_exists($filePath)
@@ -162,7 +162,7 @@ class ProcessGuard {
     }
 
     private function findAndLock() {
-        for ($lockNumber = 0; $lockNumber < $this->processNumber; $lockNumber++) {
+        for ($lockNumber = 1; $lockNumber <= $this->processNumber; $lockNumber++) {
             if ($this->lock($lockNumber)) {
                 return true;
             }
