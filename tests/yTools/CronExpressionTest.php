@@ -42,6 +42,7 @@ class CronExpressionTest extends \PHPUnit_Framework_TestCase {
     );
 
     public function testConstruct() {
+        $this->assertInstanceOf(__NAMESPACE__ . '\\CronExpression', new CronExpression('* * * * *'));
         try {
             new CronExpression('*');
             $this->fail('The expected exception has not been raised.');
