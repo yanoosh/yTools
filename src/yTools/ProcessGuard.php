@@ -12,31 +12,37 @@
 namespace yTools;
 
 class ProcessGuard {
+
     /**
      *
      * @var integer
      */
     private $procMaxNumber = 1;
+
     /**
      *
      * @var file
      */
     private $lockFile = null;
+
     /**
      *
      * @var string
      */
     private $lockDir;
+
     /**
      *
      * @var string
      */
     private $lockPrefix = 'ProcessGuard';
+
     /**
      *
      * @var integer
      */
     private $lockNumber = null;
+
     /**
      *
      * @var integer
@@ -48,7 +54,7 @@ class ProcessGuard {
      * @param string $lockDirectory The path where flockes will be saved.
      */
     public function __construct($lockDirectory) {
-        if(!is_dir($lockDirectory)) {
+        if (!is_dir($lockDirectory)) {
             throw new \InvalidArgumentException('Given path does not exists or is not a directory. ' . $lockDirectory);
         }
         if (!is_writable($lockDirectory)) {
@@ -77,12 +83,17 @@ class ProcessGuard {
         return $this;
     }
 
+    /**
+     * Gets the prefix name of locked files.
+     *
+     * @return int
+     */
     public function getLockPrefix() {
         return $this->lockPrefix;
     }
 
     /**
-     * Sets maximum processes number which could be run.
+     * Sets maximum number of processes which could be run.
      *
      * @param int $number
      * @return ProcessGuard Returns this object.
@@ -96,12 +107,17 @@ class ProcessGuard {
         return $this;
     }
 
+    /**
+     * Gets maximum processes number which could be run.
+     *
+     * @return int
+     */
     public function getProcMaxNumber() {
         return $this->procMaxNumber;
     }
 
     /**
-     * Returns a number of locked files.
+     * Returns a number of running processes.
      *
      * @return integer
      */
@@ -137,7 +153,7 @@ class ProcessGuard {
     }
 
     /**
-     * Returns lock number of running process.
+     * Returns lock id of running process.
      *
      * @return integer
      */
@@ -146,7 +162,7 @@ class ProcessGuard {
     }
 
     /**
-     * Gets process number of running process.
+     * Gets process id of running process.
      *
      * @return integer
      */
@@ -155,7 +171,11 @@ class ProcessGuard {
     }
 
     /**
-     * @return mix
+     * Sets up lock and runs a function.
+     *
+     * @param type $function Function to call.
+     * @param array $param Function parameters.
+     * @return mix The returned value from function.
      * @throws \RuntimeException, \InvalidArgumentException
      */
     public function run($function, array $param = array()) {
@@ -166,10 +186,10 @@ class ProcessGuard {
                 return $return;
             } else {
 
-                throw new \RuntimeException('Too many running processes.');
+                throw new \OverflowException('Too many running processes.');
             }
         } else {
-            throw new \InvalidArgumentException('Given value is not a callable function.');
+            throw new \BadFunctionCallException('The given function is not callable.');
         }
     }
 
