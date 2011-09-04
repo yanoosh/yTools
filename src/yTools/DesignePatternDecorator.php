@@ -29,7 +29,7 @@ abstract class DesignePatternDecorator {
     }
 
     /**
-     * Run methond from decorated object.
+     * Run methond from a decorated object.
      *
      * @param string $function 
      * @param string $arguments
