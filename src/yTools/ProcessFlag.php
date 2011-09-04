@@ -25,19 +25,19 @@ class ProcessFlag {
      * @var array
      */
     private $callFunction = null;
+
     /**
-     *
      * @var integer
      */
     private $flagType = null;
     private $flagTypeValue = null;
+
     /**
-     *
      * @var string
      */
     private $flagDir;
+
     /**
-     *
      * @var string
      */
     private $flagPrefix;
