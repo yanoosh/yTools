@@ -84,7 +84,7 @@ class ProcessFlag {
     }
 
     public function removeFlag() {
-        if (file_exists($file = $this->getFlagFile())) {
+        if (file_exists($file = $this->getFlagFilePath())) {
             unlink($file);
             return!file_exists($file);
         } else {
@@ -158,24 +158,24 @@ class ProcessFlag {
     }
 
     private function createFlag() {
-        if (null != $file = fopen($this->getFlagFile(), 'w')) {
+        if (null != $file = fopen($this->getFlagFilePath(), 'w')) {
             fclose($file);
             return true;
         } else {
-            throw new Exception('Can not create flag at ' . $this->getFlagFile());
+            throw new Exception('Can not create flag at ' . $this->getFlagFilePath());
             return false;
         }
     }
 
     private function getFileTime() {
-        if (file_exists($file = $this->getFlagFile())) {
+        if (file_exists($file = $this->getFlagFilePath())) {
             return filemtime($file);
         } else {
             return -1;
         }
     }
 
-    private function getFlagFile() {
+    private function getFlagFilePath() {
         return $this->flagDir . DIRECTORY_SEPARATOR . sprintf('%s.flag', $this->flagPrefix);
     }
 
