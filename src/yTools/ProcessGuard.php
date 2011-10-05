@@ -185,7 +185,6 @@ class ProcessGuard {
                 $this->unlock();
                 return $return;
             } else {
-
                 throw new \OverflowException('Too many running processes.');
             }
         } else {
