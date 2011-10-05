@@ -26,7 +26,7 @@ class ProcessFlag {
      * @var integer
      */
     private $flagType = null;
-    private $flagTypeValue = null;
+    private $periodInterval = null;
 
     /**
      * @var string
@@ -43,10 +43,10 @@ class ProcessFlag {
      *
      * @param strng $flagDirectory
      * @param integer $flagType
-     * @param type $flagTypeValue
+     * @param type $periodInterval
      * @throws \InvalidArgumentException
      */
-    public function __construct($flagDirectory, $flagType = self::ONE_RUN_IN_THE_DAY, $flagTypeValue = null) {
+    public function __construct($flagDirectory, $flagType = self::ONE_RUN_IN_THE_DAY, $periodInterval = 0) {
         if (!is_dir($flagDirectory)) {
             throw new \InvalidArgumentException('Given path does not exists or is not a directory. ' . $flagDirectory);
         }
@@ -54,7 +54,7 @@ class ProcessFlag {
             throw new \InvalidArgumentException('In given path could not write a file.');
         }
         $this->flagDirectory = $flagDirectory;
-        $this->setFlagType($flagType, $flagTypeValue);
+        $this->setFlagType($flagType, $periodInterval);
     }
 
     /**
@@ -116,14 +116,14 @@ class ProcessFlag {
         }
     }
 
-    private function setFlagType($type, $value = null) {
+    private function setFlagType($type, $periodInterval) {
         if (
             in_array((int) $type, array(
                 self::RUN_ONE_IN_THE_DAY,
             ))
         ) {
             $this->flagType = (int) $type;
-            $this->flagTypeValue = 0;
+            $this->periodInterval = 0;
             return true;
         } elseif (
             in_array((int) $type, array(
@@ -132,10 +132,10 @@ class ProcessFlag {
                 self::RUN_HOUR_PERIOD,
                 self::RUN_DAY_PERIOD,
             ))
-            && 0 < (int) $value
+            && 0 < (int) $periodInterval
         ) {
             $this->flagType = (int) $type;
-            $this->flagTypeValue = (int) $value;
+            $this->periodInterval = (int) $periodInterval;
             return true;
         } else {
             throw new Exception('Unknown flag type or wrong type value');
@@ -156,7 +156,7 @@ class ProcessFlag {
             case self::RUN_MINUTE_PERIOD:
                 $factor *= 60;
             case self::RUN_SECOND_PERIOD:
-                return (time() - $factor * $this->flagTypeValue) > $this->getFileTime();
+                return (time() - $factor * $this->periodInterval) > $this->getFileTime();
                 break;
             default:
                 return false;
