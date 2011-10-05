@@ -31,7 +31,7 @@ class ProcessFlag {
     /**
      * @var string
      */
-    private $flagDir;
+    private $flagDirectory;
 
     /**
      * @var string
@@ -39,8 +39,21 @@ class ProcessFlag {
     private $flagPrefix = 'ProcessFlag';
     private $flagRelease = self::RELEASE_BEFORE;
 
-    public function __construct($flagType = self::ONE_RUN_IN_THE_DAY, $flagTypeValue = null) {
-        $this->flagDir = dirname(__FILE__);
+    /**
+     *
+     * @param strng $flagDirectory
+     * @param integer $flagType
+     * @param type $flagTypeValue
+     * @throws \InvalidArgumentException
+     */
+    public function __construct($flagDirectory, $flagType = self::ONE_RUN_IN_THE_DAY, $flagTypeValue = null) {
+        if (!is_dir($flagDirectory)) {
+            throw new \InvalidArgumentException('Given path does not exists or is not a directory. ' . $flagDirectory);
+        }
+        if (!is_writable($flagDirectory)) {
+            throw new \InvalidArgumentException('In given path could not write a file.');
+        }
+        $this->flagDirectory = $flagDirectory;
         $this->setFlagType($flagType, $flagTypeValue);
     }
 
@@ -50,10 +63,6 @@ class ProcessFlag {
      */
     public function setFlagPrefix($prefix) {
         return $this->flagPrefix = mb_ereg_replace('[^a-zA-Z0-9]+', '_', $prefix);
-    }
-
-    public function setFlagDir($dir) {
-        $this->flagDir = dirname($dir);
     }
 
     public function setFlagRelease($put) {
@@ -173,7 +182,7 @@ class ProcessFlag {
     }
 
     private function getFlagFilePath() {
-        return $this->flagDir . DIRECTORY_SEPARATOR . sprintf('%s.flag', $this->flagPrefix);
+        return $this->flagDirectory . DIRECTORY_SEPARATOR . sprintf('%s.flag', $this->flagPrefix);
     }
 
 }
