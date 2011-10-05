@@ -25,7 +25,7 @@ class ProcessFlag {
     /**
      * @var integer
      */
-    private $flagType = null;
+    private $type = null;
     private $periodInterval = null;
 
     /**
@@ -42,11 +42,11 @@ class ProcessFlag {
     /**
      *
      * @param strng $flagDirectory
-     * @param integer $flagType
+     * @param integer $type
      * @param type $periodInterval
      * @throws \InvalidArgumentException
      */
-    public function __construct($flagDirectory, $flagType = self::ONE_RUN_IN_THE_DAY, $periodInterval = 0) {
+    public function __construct($flagDirectory, $type = self::ONE_RUN_IN_THE_DAY, $periodInterval = 0) {
         if (!is_dir($flagDirectory)) {
             throw new \InvalidArgumentException('Given path does not exists or is not a directory. ' . $flagDirectory);
         }
@@ -54,15 +54,27 @@ class ProcessFlag {
             throw new \InvalidArgumentException('In given path could not write a file.');
         }
         $this->flagDirectory = $flagDirectory;
-        $this->setFlagType($flagType, $periodInterval);
+        $this->setFlagType($type, $periodInterval);
     }
 
-    /**
-     *
-     * @param string $prefix 
-     */
+    public function getFlagDirectory() {
+        return $this->flagDirectory;
+    }
+
+    public function getType() {
+        return $this->type;
+    }
+
+    public function getPeriodInterval() {
+        return $this->periodInterval;
+    }
+
     public function setFlagPrefix($prefix) {
         return $this->flagPrefix = mb_ereg_replace('[^a-zA-Z0-9]+', '_', $prefix);
+    }
+
+    public function getFlagPrefix() {
+        return $this->flagPrefix;
     }
 
     public function setFlagRelease($put) {
@@ -79,6 +91,10 @@ class ProcessFlag {
         }
     }
 
+    public function getFlagRelease() {
+        return $this->flagRelease;
+    }
+
     public function removeFlag() {
         if (file_exists($file = $this->getFlagFilePath())) {
             unlink($file);
@@ -87,7 +103,6 @@ class ProcessFlag {
             return true;
         }
     }
-
 
     /**
      * Check flag and runs a function.
@@ -122,7 +137,7 @@ class ProcessFlag {
                 self::RUN_ONE_IN_THE_DAY,
             ))
         ) {
-            $this->flagType = (int) $type;
+            $this->type = (int) $type;
             $this->periodInterval = 0;
             return true;
         } elseif (
@@ -134,7 +149,7 @@ class ProcessFlag {
             ))
             && 0 < (int) $periodInterval
         ) {
-            $this->flagType = (int) $type;
+            $this->type = (int) $type;
             $this->periodInterval = (int) $periodInterval;
             return true;
         } else {
@@ -145,7 +160,7 @@ class ProcessFlag {
 
     private function isPossibleRun() {
         $factor = 1;
-        switch ($this->flagType) {
+        switch ($this->type) {
             case self::RUN_ONE_IN_THE_DAY:
                 return ((int) date('Ymd')) > ((int) date('Ymd', $this->getFileTime()));
                 break;
