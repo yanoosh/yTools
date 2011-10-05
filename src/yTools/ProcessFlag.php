@@ -11,6 +11,8 @@
 
 namespace yTools;
 
+use yTools\Exception\TooEarlyToRunException;
+
 class ProcessFlag {
     const RUN_ONE_IN_THE_DAY = 1;
     const RUN_SECOND_PERIOD = 2;
@@ -19,12 +21,6 @@ class ProcessFlag {
     const RUN_DAY_PERIOD = 5;
     const RELEASE_BEFORE = 128;
     const RELEASE_AFTER = 129;
-
-    /**
-     *
-     * @var array
-     */
-    private $callFunction = null;
 
     /**
      * @var integer
@@ -40,21 +36,12 @@ class ProcessFlag {
     /**
      * @var string
      */
-    private $flagPrefix;
+    private $flagPrefix = 'ProcessFlag';
     private $flagRelease = self::RELEASE_BEFORE;
 
-    public function __construct($function, $object = null, $flagType = self::ONE_RUN_IN_THE_DAY, $flagTypeValue = null) {
-        if (!empty($function)) {
-            if (is_object($object)) {
-                $tmp = array($object, $function);
-            } else {
-                $tmp = $function;
-            }
-            $this->callFunction = $tmp;
-            $this->flagPrefix = $this->setFlagPrefix($function);
-            $this->flagDir = dirname(__FILE__);
-            $this->setFlagType($flagType, $flagTypeValue);
-        }
+    public function __construct($flagType = self::ONE_RUN_IN_THE_DAY, $flagTypeValue = null) {
+        $this->flagDir = dirname(__FILE__);
+        $this->setFlagType($flagType, $flagTypeValue);
     }
 
     /**
@@ -92,22 +79,32 @@ class ProcessFlag {
         }
     }
 
-    public function run() {
-        if (
-            !empty($this->callFunction)
-            && null != ($tmp = $this->isPossibleRun())
-        ) {
-            if ($this->flagRelease == self::RELEASE_BEFORE) {
-                $retFlag = $this->createFlag();
+
+    /**
+     * Check flag and runs a function.
+     *
+     * @param type $function Function to call.
+     * @param array $param Function parameters.
+     * @return mix The returned value from function.
+     * @throws \BadFunctionCallException, \yTools\Exception\TooEarlyToRunException
+     */
+    public function run($function, array $param = array()) {
+        if (is_callable($function)) {
+            if (null != ($tmp = $this->isPossibleRun())) {
+                if ($this->flagRelease == self::RELEASE_BEFORE) {
+                    $retFlag = $this->createFlag();
+                }
+                $return = call_user_func_array($function, $param);
+                if ($this->flagRelease == self::RELEASE_AFTER) {
+                    $retFlag = $this->createFlag();
+                }
+                return $return;
+            } else {
+                throw new TooEarlyToRunException();
             }
-            $param = func_get_args();
-            $return = call_user_func_array($this->callFunction, $param);
-            if ($this->flagRelease == self::RELEASE_AFTER) {
-                $retFlag = $this->createFlag();
-            }
-            return $return;
+        } else {
+            throw new \BadFunctionCallException('The given function is not callable.');
         }
-        return null;
     }
 
     private function setFlagType($type, $value = null) {
