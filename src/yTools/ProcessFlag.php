@@ -46,7 +46,7 @@ class ProcessFlag {
      * @param type $periodInterval
      * @throws \InvalidArgumentException
      */
-    public function __construct($flagDirectory, $type = self::ONE_RUN_IN_THE_DAY, $periodInterval = 0) {
+    public function __construct($flagDirectory, $type = self::RUN_ONE_IN_THE_DAY, $periodInterval = 0) {
         if (!is_dir($flagDirectory)) {
             throw new \InvalidArgumentException('Given path does not exists or is not a directory. ' . $flagDirectory);
         }
