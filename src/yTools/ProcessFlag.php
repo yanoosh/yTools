@@ -19,8 +19,8 @@ class ProcessFlag {
     const RUN_MINUTE_PERIOD = 3;
     const RUN_HOUR_PERIOD = 4;
     const RUN_DAY_PERIOD = 5;
-    const RELEASE_BEFORE = 128;
-    const RELEASE_AFTER = 129;
+    const RELEASE_BEFORE_RUN_FUNC = 'before';
+    const RELEASE_AFTER_RUN_FUNC = 'after';
 
     /**
      * @var integer
@@ -37,7 +37,7 @@ class ProcessFlag {
      * @var string
      */
     private $flagPrefix = 'ProcessFlag';
-    private $flagRelease = self::RELEASE_BEFORE;
+    private $flagRelease = self::RELEASE_BEFORE_RUN_FUNC;
 
     /**
      *
@@ -80,8 +80,8 @@ class ProcessFlag {
     public function setFlagRelease($put) {
         if (
             in_array((int) $put, array(
-                self::RELEASE_BEFORE,
-                self::RELEASE_AFTER,
+                self::RELEASE_BEFORE_RUN_FUNC,
+                self::RELEASE_AFTER_RUN_FUNC,
             ))
         ) {
             $this->flagRelease = (int) $put;
@@ -115,11 +115,11 @@ class ProcessFlag {
     public function run($function, array $param = array()) {
         if (is_callable($function)) {
             if (null != ($tmp = $this->isPossibleRun())) {
-                if ($this->flagRelease == self::RELEASE_BEFORE) {
+                if ($this->flagRelease == self::RELEASE_BEFORE_RUN_FUNC) {
                     $retFlag = $this->createFlag();
                 }
                 $return = call_user_func_array($function, $param);
-                if ($this->flagRelease == self::RELEASE_AFTER) {
+                if ($this->flagRelease == self::RELEASE_AFTER_RUN_FUNC) {
                     $retFlag = $this->createFlag();
                 }
                 return $return;
