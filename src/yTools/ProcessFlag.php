@@ -77,14 +77,14 @@ class ProcessFlag {
         return $this->flagPrefix;
     }
 
-    public function setFlagRelease($put) {
+    public function setFlagRelease($constRelease) {
         if (
-            in_array((int) $put, array(
+            in_array((int) $constRelease, array(
                 self::RELEASE_BEFORE_RUN_FUNC,
                 self::RELEASE_AFTER_RUN_FUNC,
             ))
         ) {
-            $this->flagRelease = (int) $put;
+            $this->flagRelease = (int) $constRelease;
             return true;
         } else {
             return false;
