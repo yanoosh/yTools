@@ -110,7 +110,7 @@ class Flag {
      * @param type $function Function to call.
      * @param array $param Function parameters.
      * @return mix The returned value from function.
-     * @throws \BadFunctionCallException, \yTools\Exception\TooEarlyToRunException
+     * @throws \BadFunctionCallException, \Exception
      */
     public function run($function, array $param = array()) {
         if (is_callable($function)) {
@@ -124,7 +124,7 @@ class Flag {
                 }
                 return $return;
             } else {
-                throw new TooEarlyToRunException();
+                throw new \Exception('Too early to run the given function');
             }
         } else {
             throw new \BadFunctionCallException('The given function is not callable.');
