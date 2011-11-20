@@ -60,7 +60,7 @@ class ProcessGuardTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals('TestLockPrefix123_456_', $object->getLockPrefix());
         $object->setLockPrefix('TestLockPrefix');
         $this->assertEquals('TestLockPrefix', $object->getLockPrefix());
-        echo $lockFile = $this->tmpDirectory . '/TestLockPrefix-001-001.flock';
+        $lockFile = $this->tmpDirectory . '/TestLockPrefix-001-001.flock';
         $isExists = $object->run(
             function($lockFile) {
                 return is_file($lockFile);
