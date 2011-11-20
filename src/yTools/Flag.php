@@ -153,7 +153,7 @@ class Flag {
             $this->periodInterval = (int) $periodInterval;
             return true;
         } else {
-            throw new Exception('Unknown flag type or wrong periond value');
+            throw new \Exception('Unknown flag type or wrong periond value');
             return false;
         }
     }
@@ -183,7 +183,7 @@ class Flag {
             fclose($file);
             return true;
         } else {
-            throw new Exception('Can not create flag at ' . $this->getFlagFilePath());
+            throw new \Exception('Can not create flag at ' . $this->getFlagFilePath());
             return false;
         }
     }
