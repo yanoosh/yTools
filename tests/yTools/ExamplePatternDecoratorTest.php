@@ -2,12 +2,12 @@
 
 namespace yTools;
 
-class DesignePatternDecoratorTest extends \PHPUnit_Framework_TestCase {
+class ExamplePatternDecoratorTest extends \PHPUnit_Framework_TestCase {
 
     protected $object = null;
 
     public function setUp() {
-        $this->object = new TestDecorator(new HelperClassDesignePatternDecoratorTest());
+        $this->object = new TestDecorator(new HelperClassExamplePatternDecoratorTest());
     }
 
     public function testCall() {
@@ -31,7 +31,7 @@ class DesignePatternDecoratorTest extends \PHPUnit_Framework_TestCase {
 
 }
 
-class HelperClassDesignePatternDecoratorTest {
+class HelperClassExamplePatternDecoratorTest {
 
     public $variableObject = 'variableObject';
 
@@ -45,4 +45,4 @@ class HelperClassDesignePatternDecoratorTest {
 
 }
 
-class TestDecorator extends DesignePatternDecorator {}
+class TestDecorator extends ExamplePatternDecorator {}
