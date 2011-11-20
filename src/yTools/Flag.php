@@ -153,7 +153,7 @@ class Flag {
             $this->periodInterval = (int) $periodInterval;
             return true;
         } else {
-            throw new Exception('Unknown flag type or wrong type value');
+            throw new Exception('Unknown flag type or wrong periond value');
             return false;
         }
     }
