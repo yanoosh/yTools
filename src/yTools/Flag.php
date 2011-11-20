@@ -13,7 +13,7 @@ namespace yTools;
 
 use yTools\Exception\TooEarlyToRunException;
 
-class ProcessFlag {
+class Flag {
     const RUN_ONE_IN_THE_DAY = 1;
     const RUN_SECOND_PERIOD = 2;
     const RUN_MINUTE_PERIOD = 3;
