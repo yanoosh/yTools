@@ -154,7 +154,6 @@ class Flag {
             return true;
         } else {
             throw new \Exception('Unknown flag type or wrong periond value');
-            return false;
         }
     }
 
