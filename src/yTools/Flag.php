@@ -26,7 +26,7 @@ class Flag {
      * @var integer
      */
     private $type = null;
-    private $periodInterval = null;
+    private $period = null;
 
     /**
      * @var string
@@ -43,10 +43,10 @@ class Flag {
      *
      * @param strng $flagDirectory
      * @param integer $type
-     * @param type $periodInterval
+     * @param type $period
      * @throws \InvalidArgumentException
      */
-    public function __construct($flagDirectory, $type = self::RUN_ONE_IN_THE_DAY, $periodInterval = 0) {
+    public function __construct($flagDirectory, $type = self::RUN_ONE_IN_THE_DAY, $period = 0) {
         if (!is_dir($flagDirectory)) {
             throw new \InvalidArgumentException('Given path does not exists or is not a directory. ' . $flagDirectory);
         }
@@ -54,7 +54,7 @@ class Flag {
             throw new \InvalidArgumentException('In given path could not write a file.');
         }
         $this->flagDirectory = $flagDirectory;
-        $this->setFlagType($type, $periodInterval);
+        $this->setFlagType($type, $period);
     }
 
     public function getFlagDirectory() {
@@ -65,8 +65,8 @@ class Flag {
         return $this->type;
     }
 
-    public function getPeriodInterval() {
-        return $this->periodInterval;
+    public function getPeriod() {
+        return $this->period;
     }
 
     public function setFlagPrefix($prefix) {
@@ -131,14 +131,14 @@ class Flag {
         }
     }
 
-    private function setFlagType($type, $periodInterval) {
+    private function setFlagType($type, $period) {
         if (
             in_array((int) $type, array(
                 self::RUN_ONE_IN_THE_DAY,
             ))
         ) {
             $this->type = (int) $type;
-            $this->periodInterval = 0;
+            $this->period = 0;
             return true;
         } elseif (
             in_array((int) $type, array(
@@ -147,10 +147,10 @@ class Flag {
                 self::RUN_HOUR_PERIOD,
                 self::RUN_DAY_PERIOD,
             ))
-            && 0 < (int) $periodInterval
+            && 0 < (int) $period
         ) {
             $this->type = (int) $type;
-            $this->periodInterval = (int) $periodInterval;
+            $this->period = (int) $period;
             return true;
         } else {
             throw new \Exception('Unknown flag type or wrong periond value');
@@ -171,7 +171,7 @@ class Flag {
             case self::RUN_MINUTE_PERIOD:
                 $factor *= 60;
             case self::RUN_SECOND_PERIOD:
-                return (time() - $factor * $this->periodInterval) > $this->getFileTime();
+                return (time() - $factor * $this->period) > $this->getFileTime();
                 break;
             default:
                 return false;
