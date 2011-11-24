@@ -79,12 +79,12 @@ class Flag {
 
     public function setFlagRelease($constRelease) {
         if (
-            in_array((int) $constRelease, array(
+            in_array($constRelease, array(
                 self::RELEASE_BEFORE_RUN_FUNC,
                 self::RELEASE_AFTER_RUN_FUNC,
             ))
         ) {
-            $this->flagRelease = (int) $constRelease;
+            $this->flagRelease = $constRelease;
         } else {
             throw new \Exception('Unknown release type (find correct in class constant)');
         }
