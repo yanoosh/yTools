@@ -85,9 +85,8 @@ class Flag {
             ))
         ) {
             $this->flagRelease = (int) $constRelease;
-            return true;
         } else {
-            return false;
+            throw new \Exception('Unknown release type (find correct in class constant)');
         }
     }
 
