@@ -43,7 +43,7 @@ class Flag {
      *
      * @param strng $flagDirectory
      * @param integer $type
-     * @param type $period
+     * @param integer $period
      * @throws \InvalidArgumentException
      */
     public function __construct($flagDirectory, $type = self::RUN_ONE_IN_THE_DAY, $period = 0) {
@@ -77,6 +77,9 @@ class Flag {
         return $this->flagPrefix;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function setFlagRelease($constRelease) {
         if (
             in_array($constRelease, array(
@@ -106,8 +109,8 @@ class Flag {
     /**
      * Check flag and runs a function.
      *
-     * @param type $function Function to call.
-     * @param array $arguments Function parameters.
+     * @param string/Closure $function
+     * @param array $arguments
      * @return mix The returned value from function.
      * @throws \BadFunctionCallException, \Exception
      */
