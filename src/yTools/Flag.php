@@ -42,11 +42,11 @@ class Flag {
     /**
      *
      * @param strng $flagDirectory
-     * @param integer $type
+     * @param integer $constType
      * @param integer $period
      * @throws \InvalidArgumentException
      */
-    public function __construct($flagDirectory, $type = self::RUN_ONE_IN_THE_DAY, $period = 0) {
+    public function __construct($flagDirectory, $constType = self::RUN_ONE_IN_THE_DAY, $period = 0) {
         if (!is_dir($flagDirectory)) {
             throw new \InvalidArgumentException('Given path does not exists or is not a directory. ' . $flagDirectory);
         }
@@ -54,7 +54,7 @@ class Flag {
             throw new \InvalidArgumentException('In given path could not write a file.');
         }
         $this->flagDirectory = $flagDirectory;
-        $this->setFlagType($type, $period);
+        $this->setFlagType($constType, $period);
     }
 
     public function getFlagDirectory() {
