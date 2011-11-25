@@ -107,17 +107,17 @@ class Flag {
      * Check flag and runs a function.
      *
      * @param type $function Function to call.
-     * @param array $param Function parameters.
+     * @param array $arguments Function parameters.
      * @return mix The returned value from function.
      * @throws \BadFunctionCallException, \Exception
      */
-    public function run($function, array $param = array()) {
+    public function run($function, array $arguments = array()) {
         if (is_callable($function)) {
             if (null != ($tmp = $this->isPossibleRun())) {
                 if ($this->flagRelease == self::RELEASE_BEFORE_RUN_FUNC) {
                     $retFlag = $this->createFlag();
                 }
-                $return = call_user_func_array($function, $param);
+                $return = call_user_func_array($function, $arguments);
                 if ($this->flagRelease == self::RELEASE_AFTER_RUN_FUNC) {
                     $retFlag = $this->createFlag();
                 }
