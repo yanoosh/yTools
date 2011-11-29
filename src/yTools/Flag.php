@@ -180,7 +180,7 @@ class Flag {
     }
 
     private function createFlag() {
-        if (null != $file = fopen($this->getFlagFilePath(), 'w')) {
+        if (null != $file = @fopen($this->getFlagFilePath(), 'w')) {
             fclose($file);
             return true;
         } else {
