@@ -143,13 +143,13 @@ class Flag {
             $this->period = 0;
             return true;
         } elseif (
-            in_array((int) $type, array(
+            0 < (int) $period
+            && in_array((int) $type, array(
                 self::RUN_SECOND_PERIOD,
                 self::RUN_MINUTE_PERIOD,
                 self::RUN_HOUR_PERIOD,
                 self::RUN_DAY_PERIOD,
             ))
-            && 0 < (int) $period
         ) {
             $this->type = (int) $type;
             $this->period = (int) $period;
