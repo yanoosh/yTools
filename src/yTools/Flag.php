@@ -174,8 +174,6 @@ class Flag {
             case self::RUN_SECOND_PERIOD:
                 return (time() - $factor * $this->period) > $this->getFileTime();
                 break;
-            default:
-                return false;
         }
     }
 
